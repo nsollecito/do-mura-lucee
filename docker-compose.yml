@@ -1,0 +1,39 @@
+version: '2'
+services:
+  lucee:
+    build: .
+    ports:
+      - 8888:8888
+    links:
+     - appdb
+    volumes:
+      - ./www:/var/www
+    environment:
+      LUCEE_PASSWORD: IRAnKLaRILDFUlThAlAGiLTY
+      LUCEE_JAVA_OPTS: "-Xms1g -Xmx1g"
+      MYSQL_ROOT_PASSWORD : MakeThisSecretMySQLRootPassword!
+      MYSQL_HOST : appdb
+      MYSQL_DATABASE : appdatabase
+  appdb:
+    image: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - /var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD : MakeThisSecretMySQLRootPassword!
+      MYSQL_DATABASE : appdatabase
+  web:
+    cpu_shares: 10
+    mem_limit: 50MB
+    image: httpd
+    extra_hosts:
+       - "1nps.net:127.0.0.1"
+    links:
+      - lucee
+    ports:
+      - 80:80
+    volumes:
+      - ./www:/var/www
+      - ./httpd/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./httpd/default.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
